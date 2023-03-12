@@ -18,11 +18,10 @@ export const RegisterScreen = () => {
 				email,
 				password,
 			});
-
+			localStorage.setItem('token', resp.data.token);
 			navigate('/shop');
 		} catch ({ response }) {
 			setError(true);
-			setMsgError(response.data.msg);
 		}
 	};
 
