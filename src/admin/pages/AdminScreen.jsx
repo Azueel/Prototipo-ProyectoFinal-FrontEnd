@@ -22,6 +22,10 @@ export const AdminScreen = () => {
 	//estado para almacenar los datos del producto que quiero editar
 	const [productoEditar, setProductoEditar] = useState({});
 
+	//estado para alamcenar el dato de los pedidos
+	const [cargarPedido, setCargarPedido] = useState([]);
+	console.log(cargarPedido);
+
 	const navigate = useNavigate();
 	//estado para guardar los datos del formulario
 	const [formDate, setFormDate] = useState({
@@ -169,9 +173,36 @@ export const AdminScreen = () => {
 		setIsModalOpenEditar(true);
 	};
 
+	const cargarPedidosDB = async () => {
+		try {
+			const resp = await shopApi.get('/admin/pedido');
+
+			setCargarPedido(resp.data.pedido);
+		} catch (error) {
+			console.log();
+			if (error.response.status === 401) {
+				localStorage.removeItem('token');
+				navigate('/login');
+			}
+		}
+	};
+
+	const clickConfirmarPedido = async ({ _id }) => {
+		try {
+			const resp = await shopApi.put('admin/confirmar', {
+				_id,
+			});
+
+			console.log(resp);
+		} catch (error) {
+			console.log(error);
+		}
+	};
+
 	useEffect(() => {
 		cargarUser();
 		cargarProductosDB();
+		cargarPedidosDB();
 	}, []);
 
 	return (
@@ -240,6 +271,47 @@ export const AdminScreen = () => {
 					);
 				})}
 			</Table>
+
+			<h2>Pedidos a confirmar</h2>
+			<Table striped bordered hover variant="dark">
+				<thead>
+					<tr>
+						<th>#ID</th>
+						<th>Productos</th>
+						<th>Fecha</th>
+						<th>Estado del pedido</th>
+						<th>icono de button </th>
+					</tr>
+				</thead>
+
+				{cargarPedido.map((pedido) => {
+					return (
+						<tbody key={pedido._id}>
+							<tr>
+								<td>{pedido.user}</td>
+								<td>
+									{pedido.producto.map((producto, i) => {
+										return (
+											<div key={i} className="text-white">
+												{producto.name}
+											</div>
+										);
+									})}
+								</td>
+								<td>{pedido.fecha}</td>
+								<td>{pedido.estado}</td>
+
+								<td>
+									<button onClick={() => clickConfirmarPedido(pedido)}>
+										Confirmar
+									</button>
+								</td>
+							</tr>
+						</tbody>
+					);
+				})}
+			</Table>
+
 			{/* Botón con icono "+" */}
 			<div className="d-flex justify-content-end me-5">
 				<button
