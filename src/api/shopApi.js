@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const shopApi = axios.create({
-	baseURL: 'http://localhost:4003/',
+	baseURL: 'backendproducto.up.railway.app',
 });
 
 shopApi.interceptors.request.use((config) => {
